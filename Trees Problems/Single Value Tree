@@ -1,0 +1,47 @@
+# Single Value Tree
+
+# Given a binary tree, find the number of unival subtrees. An unival tree is a tree that has the same value in every node.
+
+# Example One
+/*
+    type TreeNode struct {
+        val int
+        left_ptr *TreeNode
+        right_ptr *TreeNode
+    }
+*/
+
+/*
+    Complete the function below
+*/
+
+func dfs(root *TreeNode) (int, bool) {
+    answer := 0
+    amISVT := true
+    if root.left_ptr != nil {
+        c, b := dfs(root.left_ptr)
+        answer = answer + c
+        amISVT = amISVT && root.val == root.left_ptr.val && b
+        // fmt.Printf("node: %d %v\n", root.val, root.val == root.left_ptr.val)
+    }
+    if root.right_ptr != nil {
+        c, b := dfs(root.right_ptr)
+        answer = answer + c
+        amISVT = amISVT && root.val == root.right_ptr.val && b
+        // fmt.Printf("node: %d %v\n", root.val, root.val == root.left_ptr.val)
+    }
+    if amISVT {
+        // fmt.Printf("node: %d amISVT %v, answer: %d\n", root.val, amISVT, answer)
+        answer = answer + 1
+    }
+    return answer, amISVT
+}
+
+func findSingleValueTrees(root *TreeNode) int {
+    if root == nil {
+        return 0
+    }
+    count, _ := dfs(root)
+    return count
+}
+
