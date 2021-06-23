@@ -1,0 +1,56 @@
+
+/*
+ * Complete the function below.
+ * The function is expected to return an INTEGER.
+ */
+ 
+ 
+ 
+# Count Connected Components In An Undirected Graph
+
+# Given an undirected graph, find its total number of connected components.
+
+
+func number_of_connected_components(n int32, edges [][]int32) int32 {
+    adj_list := make([][]int32, n)
+    build_graph(edges, &adj_list)
+    
+    // fmt.Println(adj_list)
+    visited := make([]int32, n)
+    var connected_count int32
+    for i,v := range(visited){
+        // fmt.Println(v)
+        if v == 0 {
+            visited[i] = 1
+            bfs(int32(i), &visited, &adj_list)
+            // fmt.Println(visited)
+            connected_count++
+        }
+    }
+    
+    return connected_count
+}
+
+func build_graph(edges [][]int32, adj_list *[][]int32) {
+    for _, e := range(edges) {
+        src, dst := e[0], e[1]
+        (*adj_list)[src] = append((*adj_list)[src], dst)
+        (*adj_list)[dst] = append((*adj_list)[dst], src)
+    }
+}
+
+func bfs(n int32, visited *[]int32, adj_list *[][]int32){
+    queue := []int32{n}
+    
+    for len(queue) > 0 {
+        curr := queue[0]
+        queue = queue[1:]
+        
+        for _, al := range((*adj_list)[curr]) {
+            if (*visited)[al] == 0 {
+                queue = append(queue, al)
+                (*visited)[al] = 1
+            }
+        }
+    }
+}
