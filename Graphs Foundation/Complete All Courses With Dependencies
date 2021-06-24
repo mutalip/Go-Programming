@@ -19,31 +19,63 @@ Output: false
 Every possible ordering of the courses violates at least one of the constraints.
 
 
-from collections import deque
+// Complete the function below
+func can_be_completed(n int32, a []int32, b []int32) bool {
+    // Init for visited, in and out times
+    visited := make([]bool, n)
+    in := make([]int, n)
+    out := make([]int, n)
+    
+    // Build graph
+    adjList := buildGraph(n, a, b)
+    
+    // Outer loop: For all unvisted vertices
+    var time int
+    for node := int32(0); node < n; node++ {
+        if visited[node] { continue }
+        
+        // Trigger DFS if node is not visited
+        // check if loop is detected.
+        cycle := dfs(node, adjList, visited, &time, in, out)
+        
+        // Return false in loop detected scenario
+        if cycle { return false }
+    }
+        
+    // Return true in other cases
+    return true
+}
 
-def can_be_completed(n, a, b):
-    adj_list = [[] for _ in range(n)]
-    for i in range(len(a)):
-        adj_list[a[i]].append(b[i])
-        
-    indegree = [0] * n
-    for dst in b:
-        indegree[dst] += 1
-        
-    queue = deque()
-    for i in range(n):
-        if indegree[i] == 0:
-            queue.append(i)
-            
-    while queue:
-        node = queue.popleft()
-        for neighbor in adj_list[node]:
-            indegree[neighbor] -= 1
-            if indegree[neighbor] == 0:
-                queue.append(neighbor)
-                
-    for i in indegree:
-        if i > 0:
-            return False
-            
-    return True
+func buildGraph(n int32, a, b []int32) [][]int32 {
+    adjList := make([][]int32, n)
+    
+    for idx, src := range a {
+        dst := b[idx]
+        adjList[src] = append(adjList[src], dst)
+    }
+    
+    return adjList
+}
+
+func dfs(node int32, adjList [][]int32, visited []bool, time *int, in []int, out []int) bool {
+    visited[node] = true
+    *time += 1
+    in[node] = *time
+    
+    for _, neighbor := range adjList[node] {
+        if !visited[neighbor] {
+            if dfs(neighbor, adjList, visited, time, in, out) {
+                return true
+            }
+        } else {
+            if out[neighbor] == 0 {
+                // Back edge
+                return true
+            }
+        }
+    }
+    
+    *time += 1
+    out[node] = *time
+    return false
+}
