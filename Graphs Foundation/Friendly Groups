@@ -1,0 +1,95 @@
+Friendly Groups
+
+There are n people living in a town. Some of them dislike each other. Given the value of n and the pairs of people disliking each other, check if we can divide the people of the town into two sets such that each person belongs to exactly one set and no two persons disliking each other belong to the same set.
+
+Example One:
+
+Input: n: 5, Disliking pairs: (0, 2) (1, 2) (1, 4) (2, 3) (3, 4). 
+
+Output: True
+
+The people can be partitioned into two sets [0, 1, 3] and [2, 4].
+
+Example Two:
+
+Input: n: 4, Disliking pairs: (0, 1) (0, 2) (0, 3) (1, 2) (2, 3). 
+
+Output: False
+
+
+
+// Complete the function below.
+func can_be_divided(num_of_people int32, dislike1 []int32, dislike2 []int32) bool {
+    // Init needed to check if graph is bipartite
+    // setup parent and levels for each node
+    levels := make([]int32, num_of_people)
+    parent := make([]int32, num_of_people)
+    for p := int32(0); p < num_of_people; p++ {
+        parent[p] = -1
+    }
+    
+    // Build graph
+    adjList := buildGraph(num_of_people, dislike1, dislike2)
+    
+    // for each vertex
+    for v := int32(0); v < num_of_people; v++ {
+        // if its visited.. continue
+        if parent[v] != -1 { continue }
+        // for all others, do BFS and check if its bipartite
+        // if it is not return false
+        if !bfs(v, adjList, parent, levels) {
+            return false
+        }
+    }
+        
+    // return can be divided in all other cases
+    return true
+}
+
+func buildGraph(nodes int32, eStart, eEnd []int32) [][]int32 {
+    adjList := make([][]int32, nodes)
+    
+    for idx, start := range eStart {
+        end := eEnd[idx]
+        adjList[start] = append(adjList[start], end)
+        adjList[end] = append(adjList[end], start)
+    }
+    
+    return adjList
+}
+
+func bfs(node int32, adjList [][]int32, parent []int32, levels []int32) bool {
+    // Init qu with given node
+    var qu []int32
+    qu = append(qu, node)
+    
+    // Increment levels(not needed for root node) and update parent for the node
+    parent[node] = -2 // root node
+    
+    // for each element in queue
+    for len(qu) > 0 {
+        // dequeue
+        vertex := qu[0]
+        qu = qu[1:]
+        
+        // for each neighbor
+        for _, neighbor := range adjList[vertex] {
+            // Check if neighbors is visited. Use parent info
+            if parent[neighbor] == -1 {
+                // for unvisited neighbors, add them to queue
+                parent[neighbor] = vertex
+                levels[neighbor] = levels[vertex]+1
+                qu = append(qu, neighbor)
+            } else {
+                // for visited neighbors, check if its corss edge at different level
+                // if it is, return false
+                if parent[vertex] != neighbor && levels[neighbor] == levels[vertex] {
+                    return false
+                }
+            }
+        }
+    }
+    
+    // return true
+    return true
+}
