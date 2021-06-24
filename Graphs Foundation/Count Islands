@@ -1,0 +1,146 @@
+Count Islands
+
+Given a two-dimensional boolean matrix, find the number of islands.
+
+An island is a group of connected 1s or a standalone 1. A cell in the matrix can be connected to up to 8 neighbors: 2 vertical, 2 horizontal and 4 diagonal.
+
+Example
+
+Input:
+
+[
+
+    [1, 1, 0, 0, 0],
+
+    [0, 1, 0, 0, 1],
+
+    [1, 0, 0, 1, 1],
+
+    [0, 0, 0, 0, 0],
+
+    [1, 0, 1, 0, 1]
+
+]
+
+Output: 5
+
+(0 0), (0 1), (1 1) and (2 0) make an island.
+
+(1 4), (2 4) and (2 3) make an island. 
+
+(4 0) makes an island.
+
+(4 2) makes an island.
+
+(4 4) makes an island.
+
+
+
+/*
+Complete the function count_islands
+The function takes integers 2D integer array, matrix, as parameter.
+*/
+func count_islands(matrix [][]int32) int32 {
+    var count int32
+    visited := make([][]int32, len(matrix))
+    for i,_ := range(matrix) {
+        visited[i] = make([]int32, len(matrix[0]))
+    }
+    
+    
+    for x, row := range(matrix) {
+        for y, col := range(row){
+            if col == 1 && visited[x][y] == 0 {
+                // fmt.Println(x, y)
+                visited[x][y] = 1
+                bfs(int32(x), int32(y), &matrix, &visited)
+                // for _, blah := range(visited){
+                //     fmt.Println(blah)
+                // }
+                // fmt.Println()
+                count++
+            }
+        }
+    }
+    return count
+}
+
+func bfs(x int32, y int32, matrix *[][]int32, visited *[][]int32) {
+    temp := []int32{x, y}
+    queue := [][]int32{temp}
+        // fmt.Println("f", queue)
+    
+    for len(queue) > 0 {
+        curr_x, curr_y := queue[0][0], queue[0][1]
+        queue = queue[1:]
+        
+        if (*matrix)[curr_x][curr_y] == 0 {
+            continue
+        } 
+        
+        get_adjacent(curr_x, curr_y, &queue, visited)
+        // fmt.Println(queue)
+    }
+}
+
+func get_adjacent(x int32, y int32, queue *[][]int32, visited *[][]int32) {
+    var temp [][]int32
+    width := int32(len((*visited)[0]))
+    height := int32(len(*visited))
+    
+    // fmt.Println(x,y)
+    //check top left, top center, top right
+    if x > 0 {
+        
+        if y > 0 && (*visited)[x-1][y-1] == 0 {
+            temp = append(temp, []int32{x-1, y-1})
+            (*visited)[x-1][y-1] = 1
+        }
+        
+        if (*visited)[x-1][y] == 0 {
+            temp = append(temp, []int32{x-1, y})
+            (*visited)[x-1][y] = 1
+        }
+        
+        if y+1 < width && (*visited)[x-1][y+1] == 0 {
+            temp = append(temp, []int32{x-1, y+1})
+            (*visited)[x-1][y+1] = 1
+        }
+    }
+    
+    
+    //check left 
+    if y > 0 {
+        if (*visited)[x][y-1] == 0 {
+            temp = append(temp, []int32{x, y-1})
+            (*visited)[x][y-1] = 1
+        }
+    }
+    //check right 
+    if y+1 < width {
+        if (*visited)[x][y+1] == 0 {
+            temp = append(temp, []int32{x, y+1})
+            (*visited)[x][y+1] = 1
+        }
+    }
+    
+    //check bottom left, bottom center, bottom right
+    if x+1 < height {
+        
+        if y > 0 && (*visited)[x+1][y-1] == 0 {
+            temp = append(temp, []int32{x+1, y-1})
+            (*visited)[x+1][y-1] = 1
+        }
+        
+        if (*visited)[x+1][y] == 0 {
+            temp = append(temp, []int32{x+1, y})
+            (*visited)[x+1][y] = 1
+        }
+        
+        if y+1 < width && (*visited)[x+1][y+1] == 0 {
+            temp = append(temp, []int32{x+1, y+1})
+            (*visited)[x+1][y+1] = 1
+        }
+    }
+    *queue = append(*queue, temp...)
+}
