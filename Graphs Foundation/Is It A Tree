@@ -1,0 +1,78 @@
+
+Is It A Tree
+
+Given an undirected graph of node_count nodes and edge_count edges, find whether it is a tree or not. The undirected edges are described by two arrays edge_start and edge_end of size edge_count each. There exists an undirected edge between the node labeled edge_start[i] and the node labeled edge_end[i] for all valid i. 
+
+// Complete the function below
+func is_it_a_tree(node_count int32, edge_start []int32, edge_end []int32) bool {
+    // Init
+    visited := make([]bool, node_count)
+    parent := make([]int32, node_count)
+    var components int
+    
+    // Build graph
+    adjList := buildGraph(node_count, edge_start, edge_end)
+    
+    // Outer loop
+    for node := int32(0); node < node_count; node++ {
+        if visited[node] {continue}
+        // count components
+        // If components > 1 , return false
+        components++
+        
+        if components > 1 { return false }
+        
+        // Do BFS for unvisited neighbors and check if cycle is found
+        // Return false if cycle is found
+        if bfs(node, adjList, visited, parent) {
+            return false
+        }
+    }
+        
+    // return true, no cycle found or components == 1, if we reach here
+    return true
+}
+
+func buildGraph (nodes int32, edge_start []int32, edge_end []int32) [][]int32 {
+    adjList := make([][]int32, nodes)
+    
+    for idx, start := range edge_start {
+        end := edge_end[idx]
+        adjList[start] = append(adjList[start], end)
+        adjList[end] = append(adjList[end], start)
+    }
+    
+    return adjList
+}
+
+func bfs(vertex int32, adjList [][]int32, visited []bool, parent []int32) bool {
+    // Init queue
+    var qu []int32
+    qu = append(qu, vertex)
+    visited[vertex] = true
+    
+    // For each element in queue
+    for len(qu) > 0 {
+        // dequeue first vertex
+        v := qu[0]
+        qu = qu[1:]
+        
+        // Check each unvisited neighbor and add to queue.
+        // Update parent of neighbor to vertex
+        for _, neighbor := range adjList[v] {
+            if !visited[neighbor] {
+                qu = append(qu, neighbor)
+                parent[neighbor] = v
+                visited[neighbor] = true
+            } else {
+                // For visited node, if neighbor is not parent, then we have a cycle. return true
+                if parent[v] != neighbor || neighbor == v {
+                    return true
+                }
+            }
+        }
+        
+    }
+    // return false if we reach here since cycle is found.
+    return false
+}
